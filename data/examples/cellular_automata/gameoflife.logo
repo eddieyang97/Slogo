@@ -1,0 +1,67 @@
+# implements the Game of Life in SLogo
+# diagonal neighbors included, finite borders
+# shown turtles are alive, hidden turtles are dead
+# uses the variables :x and :index during iteration; it is asked that the :size variable remain untouched to ensure proper grid behavior
+# author: Andrew Yeung
+
+# generates a random game of life board of size :gridsize * :gridsize
+to setuplife [ :gridsize ] [
+	askwith [ greater? ID * :gridsize :gridsize ] [ ht seth 180 ]
+	cs
+	tell [ 1 ]
+	pu
+	setxy * -10 :gridsize * -10 :gridsize
+	pd 
+	repeat 4 [ fd * 20 :gridsize rt 90 ]
+	# sets up the Turtles in a grid
+	tell [ ] 
+	dotimes [ :a * :gridsize :gridsize ] [
+		ask [ :a ] [
+			setshape 0
+			st
+			pu
+			setxy * - % - ID 1 :gridsize / - :gridsize 1 2 20  * - / - ID + 1 % - ID 1 :gridsize :gridsize / - :gridsize 1 2 20
+			seth 270
+			ht
+		]
+	]
+	repeat random * :gridsize :gridsize [
+		set :size + random * :gridsize :gridsize 1 
+		ask [ - :size % :size 1 ] [ seth 90 st ]
+	]
+	set :size :gridsize
+]
+
+# moves the simulation forward :count generations
+to iteratelife [ :count ] [
+	repeat :count [
+		dotimes [ :a * :size :size ] [
+			tell [ :a ]
+			set :x 0
+			for [ :i ~ :size :size :size ] [
+				for [ :j -1 1 1 ] [
+					set :index ( sum :a :i :j )
+					if [ ( and not equal? :index :a not less? :index 1 not greater? :index * :size :size not equal? 1 + % :index :size % :a :size ask [ :index ] [ showing? ] ) ] [
+						set :x + :x 1
+					]
+				]
+			] 
+			if [ or less? :x 2 greater? :x 3 ] [
+				seth 270
+			]
+			if [ equal? :x 3 ] [
+				seth 90
+			]  
+		]
+		askwith [ equal? heading 90 ] [ st ]
+		askwith [ equal? heading 270 ] [ ht ]
+	]
+]
+
+# moves the simulation forward 1 generation
+to steplife [ ] [
+	iteratelife [ 1 ]
+]
+
+# makes a simulation with the default size of 9; can be changed again by calling setuplife
+setuplife 9

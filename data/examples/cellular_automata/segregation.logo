@@ -1,0 +1,91 @@
+# implements the Segregation simulation in SLogo
+# diagonal neighbors included, finite borders
+# As per segregation rules, a cell cannot move to a spot that would be vacated by another cell in the same generation.
+# up&right facing turtles are 1 group, upwards facing turtles are other group. Hidden turtles represent empty slots.
+# uses the variables :x, :y, :a, :offset, and :index during iteration
+# It is asked that the :size variable remain untouched to ensure proper grid behavior.
+# author: Andrew Yeung
+
+# generates a random segregation board of size :gridsize * :gridsize and a threshold parameter
+# @param :gridsize represents size of the square grid
+# @param :thresh represents the satisfaction threshold to be set.
+to setupseg [ :gridsize :thresh ] [
+	askwith [ greater? ID * :gridsize :gridsize ] [ ht seth 180 ]
+	cs
+	tell [ 1 ]
+	pu
+	setxy * -10 :gridsize * -10 :gridsize
+	pd 
+	repeat 4 [ fd * 20 :gridsize rt 90 ]
+	# sets up the Turtles in a grid
+	tell [ ] 
+	dotimes [ :a * :gridsize :gridsize ] [
+		ask [ :a ] [
+			setshape 0
+			st
+			pu
+			setxy * - % - ID 1 :gridsize / - :gridsize 1 2 20  * - / - ID + 1 % - ID 1 :gridsize :gridsize / - :gridsize 1 2 20
+			set :size random 1
+			ifelse less? :size 0.1 [
+				seth 0 ht
+			]
+			[ 
+				ifelse less? :size 0.55 [ seth 30 ] [ seth 90 ]
+			]
+		]
+	]
+	set :size :gridsize
+	set :threshold :thresh
+]
+
+# moves the simulation forward :count generations
+# The turtles are looped through in a diagonal fashion each generation, which allows the map to be more dynamic in its initial generations.
+# No randomness because applying simulation rules to random cells does not guarantee that all cells are reached.
+# to increase randomness, the starting point for said loop is random, as is the starting point for finding empty spots.
+# @param :count represents the number of generations to iterate
+to iterateseg [ :count ] [
+	repeat :count [
+		set :offset random * :size :size
+		set :offset  - :offset % :offset 1
+		dotimes [ :q * :size :size ] [
+			set :a % ( + :q :offset * - :q 1 :size ) * :size :size
+			set :x 0
+			set :y 0
+			if [ ask [ :a ] [ showing? ] ] [
+				for [ :i ~ :size :size :size ] [
+					for [ :j -1 1 1 ] [
+						set :index ( sum :a :i :j )
+						if [ ( and not equal? :index :a not less? :index 1 not greater? :index * :size :size not equal? 1 + % :index :size % :a :size ask [ :index ] [ showing? ] ) ] [
+							set :y + :y 1
+							if [ equal? ask [ :a ] [ heading ] ask [ :index ] [ % heading 180 ] ] [
+								set :x + :x 1
+							] 
+						]
+					]
+				]
+				if [ and not equal? :y 0 less? / :x :y :threshold ] [
+					set :x random * :size :size
+					set :x  - :x % :x 1
+					dotimes [ :f * :size :size ] [
+						set :b % + :f :x * :size :size
+						if [ ask [ :b ] [ and not showing? equal? heading 0 ] ] [
+							ask [ :b ] [ seth ask [ :a ] [ + heading 10 ] ]
+							ask [ :a ] [ left 180 ]
+							set :f + * :size :size 1 
+						]
+					]
+				]
+			]
+		]
+		askwith [ or equal? heading 40 equal? heading 100 ] [ right 10 st ]
+		askwith [ greater? heading 180 ] [ seth 0 ht ]
+	]
+]
+
+# moves the simulation forward 1 generation
+to stepseg [ ] [
+	iterateseg [ 1 ]
+]
+
+# makes a simulation with the default size of 9; can be changed again by calling setupseg
+setupseg 9 0.5

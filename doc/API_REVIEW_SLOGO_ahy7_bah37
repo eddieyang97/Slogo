@@ -1,0 +1,19 @@
+SLogo API Review
+===
+
+## Part 1
+1. The API is intended to be flexible in terms of writing new commands and having new languages. The API is also intended to limit external access to the internal logic of the API while allowing some leeway for the internal logic to be built upon by other programmers.
+2. The external API is relatively sparse and limits the parts of the program exposed to the outside. This prevents client code from having unwarranted effects on the program. The implementation of the Command subclasses separates the execution logic from the parsing logic, allowing another programmer to add new commands without direct modification of existing code. The Dictionary is flexible to the storage of functions containing new commands as well. And *theoretically* you could use the same structure to write an interpreter for other Lisp dialects.
+3. Exceptions will be thrown to the front end, who will display them as an alert. Exceptions may occur when a properties file is invalid, a command/function/variable is not recognized, or there is a syntax error.
+4. In terms of separating functionality into different classes and differentiating things that are closed to modification vs open to extension, I think the design does a good job as it limits external meddling with the program while providing multiple options for a programmer to implement new features; the structure also separates the major components of back-end into their own classes.
+
+## Part 2
+1. Currently, we have a factory design pattern to make specific Command objects, hiding instantiation logic for said objects from other classes. The Command object itself is a design pattern used that represents each command in the program; it is useful for creating a representation of SLogo commands that is easily extendible.
+2. I am most excited about figuring out the parsing logic. It seems really interesting and I think it'll be satisfying to work out.
+3. I am also most worried about figuring out the parsing logic because it looks difficult and will likely require me to bash my head against a wall for a couple days.
+4. Use cases:
+    1. The user runs 'fd 50'. 
+    2. The user attempts to run 'df 50' on accident (he/she meant to type fd 50).
+    3. The user runs 'sum 10 20'.
+    4. The user attempts to run 'sum 10' (Note that sum should take 2 arguments).
+    5. The user runs ':x 50 fd :x'.

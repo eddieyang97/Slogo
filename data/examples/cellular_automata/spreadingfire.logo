@@ -1,0 +1,62 @@
+#implements the Spreading Fire simulation in SLogo
+# neighbors in cardinal directions, finite borders
+# hidden turtles are empty or dead, those facing down to the side are on fire, those facing up are alive 
+# uses the variables :x and :index during iteration; it is asked that the :size variable remain untouched to ensure proper grid behavior
+# change probcatchfire to adjust the simulation as needed. Values less than 0 are treated as 0, Values greater than 1 are treated as 1.
+#author: Andrew Yeung
+
+#sets up a grid with the proper gridsize and probability of catching fire
+to setupfire [ :gridsize :pcf ] [
+	askwith [ greater? ID * :gridsize :gridsize ] [ ht seth 180 ]
+	setshape 0
+	cs
+	tell [ 1 ]
+	pu
+	setxy * -10 :gridsize * -10 :gridsize
+	pd 
+	repeat 4 [ fd * 20 :gridsize rt 90 ]
+	# sets up the Turtles in a grid
+	tell [ ] 
+	dotimes [ :a * :gridsize :gridsize ] [
+		ask [ :a ] [
+			st
+			pu
+			setxy * - % - ID 1 :gridsize / - :gridsize 1 2 20  * - / - ID + 1 % - ID 1 :gridsize :gridsize / - :gridsize 1 2 20
+			seth 90
+		]
+	]
+	repeat random ( * :gridsize :gridsize 0.2 ) [
+		set :size + random * :gridsize :gridsize 1 
+		ask [ - :size % :size 1 ] [ seth 30 ]
+	]
+	set :size :gridsize
+	set :probcatchfire :pcf
+]
+
+# iterates through :gencount iterations of fire spreading
+to iteratefire [ :gencount ] [
+	repeat :gencount [ 
+		askwith [ equal? heading 30 ] [
+			for [ :q -1 1 2 ] [
+				if [ ( and less? random 1 :probcatchfire not equal? 1 + % ID :size % + ID :q :size ask [ + ID :q ] [ equal? heading 90 ] ) ] [
+					ask [ + ID :q ] [ seth 0 ]
+				] 	
+			]
+			for [ :q ~ :size :size * 2 :size ] [
+				if [ ( and less? random 1 :probcatchfire not less? ID + :size 1 not greater? ID * :size - :size 1 ask [ + ID :q ] [ equal? heading 90 ] ) ] [
+					ask [ + ID :q ] [ seth 0 ]
+				]
+			]
+		]
+		askwith [ equal? heading 30 ] [ seth 180 ht ]
+		askwith [ equal? heading 0 ] [ seth 30 ]
+	]
+]
+
+# does one iteration of fire spreading
+to stepfire [ ] [
+	iteratefire [ 1 ]
+]
+
+# creates a grid with default variables. Run again to change.
+setupfire 9 0.5 

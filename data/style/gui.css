@@ -1,0 +1,26 @@
+.label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #333333;
+    -fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
+}
+.button {
+	
+    -fx-background-color: linear-gradient(#eeeeee, #cccccc);
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
+    border: none;
+    -fx-background-radius: 0px;    
+}
+.text {
+	-fx-font-family: "Quicksand";
+    -fx-font-size: 15px;
+}
+.button:hover {
+    -fx-background-color: linear-gradient(#cccccc, #eeeeee);
+}
+.text-field {
+	-fx-font: 12px "Lucida Console";
+}
+
+.rectangle {
+	-fx-background-color: #ff0000;
+}
